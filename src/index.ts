@@ -10,11 +10,37 @@ export interface BadgenOptions {
   subject?: string;
   color?: ColorPreset;
   label?: string;
-  labelColor?: string
+  labelColor?: string;
   style?: StyleOption;
   icon?: string;
   iconWidth?: number;
-  scale?: number
+  scale?: number;
+}
+
+/**
+ * Based on Shields.io (brightness() function)
+ */
+function colorBrightness (hex: string): number {
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
+  }
+
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+
+  return (r * 299 + g * 587 + b * 114) / 255000
+}
+
+/**
+ * Based on Shields.io (colorsForBackground() function)
+ */
+function colorsForBackground (hex: string): { textColor: string; shadowColor: string } {
+  if (colorBrightness(hex) <= 0.69) {
+    return { textColor: '#fff', shadowColor: '#000' }
+  } else {
+    return { textColor: '#000', shadowColor: '#fff' }
+  }
 }
 
 export function badgen ({
@@ -38,6 +64,9 @@ export function badgen ({
   color = colorPresets[color] || color
   labelColor = colorPresets[labelColor] || labelColor
   iconWidth = iconWidth * 10
+
+  const { textColor: labelTextColor, shadowColor: labelShadowColor } = colorsForBackground(labelColor)
+  const { textColor: statusTextColor, shadowColor: statusShadowColor } = colorsForBackground(color)
 
   const iconSpanWidth = icon ? (label?.length ? iconWidth + 30 : iconWidth - 18) : 0
   const sbTextStart = icon ? (iconSpanWidth + 50) : 50
@@ -65,11 +94,11 @@ export function badgen ({
     <rect fill="#${labelColor}" width="${sbRectWidth}" height="200"/>
     <rect fill="#${color}" x="${sbRectWidth}" width="${stRectWidth}" height="200"/>
   </g>
-  <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
-    <text x="${sbTextStart + 10}" y="148" textLength="${sbTextWidth}" fill="#000" opacity="0.1">${label}</text>
-    <text x="${sbTextStart}" y="138" textLength="${sbTextWidth}">${label}</text>
-    <text x="${sbRectWidth + 55}" y="148" textLength="${stTextWidth}" fill="#000" opacity="0.1">${status}</text>
-    <text x="${sbRectWidth + 45}" y="138" textLength="${stTextWidth}">${status}</text>
+  <g aria-hidden="true" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
+    <text x="${sbTextStart + 10}" y="148" textLength="${sbTextWidth}" fill="${labelShadowColor}" opacity="0.1">${label}</text>
+    <text x="${sbTextStart}" y="138" textLength="${sbTextWidth}" fill="${labelTextColor}">${label}</text>
+    <text x="${sbRectWidth + 55}" y="148" textLength="${stTextWidth}" fill="${statusShadowColor}" opacity="0.1">${status}</text>
+    <text x="${sbRectWidth + 45}" y="138" textLength="${stTextWidth}" fill="${statusTextColor}">${status}</text>
   </g>
   ${icon ? `<image x="40" y="35" width="${iconWidth}" height="132" xlink:href="${icon}"/>` : ''}
 </svg>`
@@ -87,11 +116,11 @@ export function badgen ({
     <rect width="${stRectWidth}" height="200" fill="#${color}" x="${sbRectWidth}"/>
     <rect width="${width}" height="200" fill="url(#${gradientId})"/>
   </g>
-  <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
-    <text x="${sbTextStart + 10}" y="148" textLength="${sbTextWidth}" fill="#000" opacity="0.25">${label}</text>
-    <text x="${sbTextStart}" y="138" textLength="${sbTextWidth}">${label}</text>
-    <text x="${sbRectWidth + 55}" y="148" textLength="${stTextWidth}" fill="#000" opacity="0.25">${status}</text>
-    <text x="${sbRectWidth + 45}" y="138" textLength="${stTextWidth}">${status}</text>
+  <g aria-hidden="true" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
+    <text x="${sbTextStart + 10}" y="148" textLength="${sbTextWidth}" fill="${labelShadowColor}" opacity="0.25">${label}</text>
+    <text x="${sbTextStart}" y="138" textLength="${sbTextWidth}" fill="${labelTextColor}">${label}</text>
+    <text x="${sbRectWidth + 55}" y="148" textLength="${stTextWidth}" fill="${statusShadowColor}" opacity="0.25">${status}</text>
+    <text x="${sbRectWidth + 45}" y="138" textLength="${stTextWidth}" fill="${statusTextColor}">${status}</text>
   </g>
   ${icon ? `<image x="40" y="35" width="${iconWidth}" height="130" xlink:href="${icon}"/>` : ''}
 </svg>`
@@ -100,6 +129,8 @@ export function badgen ({
 function bare ({ status, color = 'blue', style, scale = 1 }: BadgenOptions) {
   typeAssert(typeof status === 'string', '<status> must be string')
   color = colorPresets[color] || color || colorPresets.blue
+
+  const { textColor: statusTextColor, shadowColor: statusShadowColor } = colorsForBackground(color)
 
   const stTextWidth = calcWidth(status)
   const stRectWidth = stTextWidth + 115
@@ -116,9 +147,9 @@ function bare ({ status, color = 'blue', style, scale = 1 }: BadgenOptions) {
   <g>
     <rect fill="#${color}" x="0" width="${stRectWidth}" height="200"/>
   </g>
-  <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
-    <text x="65" y="148" textLength="${stTextWidth}" fill="#000" opacity="0.1">${status}</text>
-    <text x="55" y="138" textLength="${stTextWidth}">${status}</text>
+  <g aria-hidden="true" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
+    <text x="65" y="148" textLength="${stTextWidth}" fill="${statusShadowColor}" opacity="0.1">${status}</text>
+    <text x="55" y="138" textLength="${stTextWidth}" fill="${statusTextColor}">${status}</text>
   </g>
 </svg>`
   }
@@ -134,9 +165,9 @@ function bare ({ status, color = 'blue', style, scale = 1 }: BadgenOptions) {
     <rect width="${stRectWidth}" height="200" fill="#${color}" x="0"/>
     <rect width="${stRectWidth}" height="200" fill="url(#${gradientId})"/>
   </g>
-  <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
-    <text x="65" y="148" textLength="${stTextWidth}" fill="#000" opacity="0.25">${status}</text>
-    <text x="55" y="138" textLength="${stTextWidth}">${status}</text>
+  <g aria-hidden="true" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
+    <text x="65" y="148" textLength="${stTextWidth}" fill="${statusShadowColor}" opacity="0.25">${status}</text>
+    <text x="55" y="138" textLength="${stTextWidth}" fill="${statusTextColor}">${status}</text>
   </g>
 </svg>`
 }
