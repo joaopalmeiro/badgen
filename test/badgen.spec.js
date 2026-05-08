@@ -1,6 +1,9 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
+const fs = require('node:fs')
 const path = require('node:path')
+const vm = require('node:vm')
+const { pathToFileURL } = require('node:url')
 const { badgen } = require('../dist')
 const icons = require('./assets/icon-data-uri.js')
 const { matchSnapshot } = require('./snapshot')
@@ -132,4 +135,36 @@ test('ensure bare() correctly escapes string inputs', () => {
 test('type checking', () => {
   // @ts-ignore
   assert.throws(() => badgen({}), TypeError)
+})
+
+test('supports Node ESM import', async () => {
+  const moduleUrl = pathToFileURL(path.join(__dirname, '..', 'dist', 'index.mjs')).href
+  const imported = await import(moduleUrl)
+
+  assert.equal(typeof imported.badgen, 'function')
+  assert.equal(typeof imported.calcWidth, 'function')
+
+  withDeterministicRandom(() => {
+    assert.equal(
+      imported.badgen({ label: 'npm', status: 'v1.0.0' }),
+      badgen({ label: 'npm', status: 'v1.0.0' })
+    )
+  })
+})
+
+test('supports direct browser script usage', () => {
+  const browserBundle = fs.readFileSync(path.join(__dirname, '..', 'dist', 'index.browser.js'), 'utf8')
+  const sandbox = { Math: mockMath, window: {} }
+  vm.createContext(sandbox)
+  vm.runInContext(browserBundle, sandbox)
+
+  assert.equal(typeof sandbox.window.badgen, 'function')
+  assert.equal(typeof sandbox.window.badgen({ status: 'ok' }), 'string')
+
+  withDeterministicRandom(() => {
+    assert.equal(
+      sandbox.window.badgen({ label: 'npm', status: 'v1.0.0' }),
+      badgen({ label: 'npm', status: 'v1.0.0' })
+    )
+  })
 })

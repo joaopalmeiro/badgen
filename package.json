@@ -6,7 +6,16 @@
   "author": "Amio <amio.cn@gmail.com>",
   "license": "MIT",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "unpkg": "dist/index.browser.js",
   "scripts": {
     "bench": "node bench/index.js",
@@ -15,18 +24,14 @@
     "pretest": "npm run build",
     "test": "node --test test/*.spec.js",
     "prebuild": "rm -rf dist",
-    "esbuild": "esbuild src/index.ts --bundle --minify --sourcemap",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:browser": "npm run esbuild -- --outfile=dist/index.browser.js",
-    "build:node": "npm run esbuild -- --platform=node --outfile=dist/index.js",
-    "build": "npm run build:browser && npm run build:node",
+    "build": "vite build",
     "postbuild": "npm run build:types",
     "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
     "benchmark": "^2.1.4",
-    "esbuild": "^0.28.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.11"
   }

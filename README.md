@@ -31,6 +31,10 @@ const svgString = badgen({
 })
 ```
 
+```javascript
+import { badgen } from 'badgen'
+```
+
 Available color names:
 
 ![](https://badgen.net/badge/color/blue/blue)

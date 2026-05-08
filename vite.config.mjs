@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
-import { build as esbuild } from 'esbuild'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
@@ -100,24 +99,33 @@ function createPreviewMiddleware(loadBadgen) {
   }
 }
 
-async function loadBadgenFromSource() {
-  const result = await esbuild({
-    absWorkingDir: __dirname,
-    bundle: true,
-    entryPoints: [path.join(__dirname, 'src', 'index.ts')],
-    format: 'cjs',
-    platform: 'node',
-    target: 'node24',
-    write: false
-  })
-
-  const module = { exports: {} }
-  const evaluate = new Function('require', 'module', 'exports', result.outputFiles[0].text)
-  evaluate(require, module, module.exports)
-  return module.exports
-}
-
 export default {
+  build: {
+    sourcemap: true,
+    emptyOutDir: false,
+    lib: {
+      entry: path.join(__dirname, 'src', 'index.ts')
+    },
+    rollupOptions: {
+      output: [
+        {
+          format: 'es',
+          entryFileNames: 'index.mjs'
+        },
+        {
+          format: 'cjs',
+          exports: 'named',
+          entryFileNames: 'index.js'
+        },
+        {
+          format: 'iife',
+          name: '__badgenBundle',
+          entryFileNames: 'index.browser.js',
+          footer: 'window.badgen = __badgenBundle.badgen;'
+        }
+      ]
+    }
+  },
   server: {
     open: '/preview/'
   },
@@ -129,7 +137,7 @@ export default {
       }
     },
     configureServer(server) {
-      server.middlewares.use(createPreviewMiddleware(loadBadgenFromSource))
+      server.middlewares.use(createPreviewMiddleware(() => server.ssrLoadModule('/src/index.ts')))
     },
     configurePreviewServer(server) {
       server.middlewares.use(createPreviewMiddleware(async () => {

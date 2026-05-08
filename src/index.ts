@@ -211,7 +211,3 @@ declare global {
     badgen: typeof badgen;
   }
 }
-
-if (typeof window === 'object') {
-  window.badgen = badgen
-}
