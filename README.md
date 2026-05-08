@@ -68,6 +68,12 @@ Available color names:
    [flat] style, with icon   x 994,481 ops/sec ±0.30% (94 runs sampled)
 ```
 
+## Development
+
+- `npm test` builds `dist/` and runs the suite with Node's native test runner.
+- `npm run snaptests` updates the checked-in snapshots.
+- `npm run preview` starts the Vite preview app with live reload at `http://localhost:5173/`.
+
 ## See Also
 
 - [gradient-badge][gradient-badge] - Badge generator with color gradient support

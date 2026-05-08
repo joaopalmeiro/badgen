@@ -1,36 +1,36 @@
-const tap = require('tap')
+const test = require('node:test')
+const assert = require('node:assert/strict')
+const path = require('node:path')
 const { calcWidth } = require('../dist')
+const { matchSnapshot } = require('./snapshot')
 
-tap.test('basic functions', t => {
-  t.ok(typeof calcWidth === 'function', 'export calcWidth function')
-  t.ok(Number.isFinite(calcWidth('')), 'result is a number')
-  t.ok(calcWidth('') === 0, 'return 0 for empty string')
-  t.end()
+const snapshotFile = path.join(__dirname, '..', 'tap-snapshots', 'test', 'calc-width.spec.js.test.cjs')
+const snapshotKey = name => `test/calc-width.spec.js TAP ${name} > result is correct 1`
+
+test('basic functions', () => {
+  assert.equal(typeof calcWidth, 'function')
+  assert.equal(Number.isFinite(calcWidth('')), true)
+  assert.equal(calcWidth(''), 0)
 })
 
-tap.test('calc width for "npm"', t => {
-  t.matchSnapshot(calcWidth('npm'), 'result is correct')
-  t.end()
+test('calc width for "npm"', () => {
+  matchSnapshot(snapshotFile, snapshotKey('calc width for "npm"'), calcWidth('npm'))
 })
 
-tap.test('calc width for unicode', t => {
-  t.matchSnapshot(calcWidth('壹佰贰拾叁'), 'result is correct')
-  t.end()
+test('calc width for unicode', () => {
+  matchSnapshot(snapshotFile, snapshotKey('calc width for unicode'), calcWidth('壹佰贰拾叁'))
 })
 
-tap.test('calc width for special chars', t => {
-  t.matchSnapshot(calcWidth('<{[(&)]}>'), 'result is correct')
-  t.end()
+test('calc width for special chars', () => {
+  matchSnapshot(snapshotFile, snapshotKey('calc width for special chars'), calcWidth('<{[(&)]}>'))
 })
 
-tap.test('calc width for accented characters', t => {
-  t.ok(calcWidth('i') === calcWidth('ï'), 'i and ï have the same width')
-  t.ok(calcWidth('e') === calcWidth('é'), 'e and é have the same width')
-  t.ok(calcWidth('s') === calcWidth('ṣ'), 's and ṣ have the same width')
-  t.end()
+test('calc width for accented characters', () => {
+  assert.equal(calcWidth('i'), calcWidth('ï'))
+  assert.equal(calcWidth('e'), calcWidth('é'))
+  assert.equal(calcWidth('s'), calcWidth('ṣ'))
 })
 
-tap.test('calc width for emojis', t => {
-  t.matchSnapshot(calcWidth('💩🤱🦄'), 'result is correct')
-  t.end()
+test('calc width for emojis', () => {
+  matchSnapshot(snapshotFile, snapshotKey('calc width for emojis'), calcWidth('💩🤱🦄'))
 })

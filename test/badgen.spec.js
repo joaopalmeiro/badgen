@@ -1,110 +1,135 @@
-const tap = require('tap')
+const test = require('node:test')
+const assert = require('node:assert/strict')
+const path = require('node:path')
 const { badgen } = require('../dist')
 const icons = require('./assets/icon-data-uri.js')
+const { matchSnapshot } = require('./snapshot')
 
-const originalMath = global.Math
 const mockMath = Object.create(global.Math)
 mockMath.random = () => 0.5
 
-tap.beforeEach(async t => { global.Math = mockMath })
-tap.afterEach(async t => { global.Math = originalMath })
+const snapshotFile = path.join(__dirname, '..', 'tap-snapshots', 'test', 'badgen.spec.js.test.cjs')
+const snapshotKey = name => `test/badgen.spec.js TAP ${name} > snapshot 1`
 
-tap.test('generate badge with { label, status }', t => {
-  const svg = badgen({ label: 'npm', status: 'v1.0.0' })
-  t.ok(typeof svg === 'string', 'successfully generated')
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
+function withDeterministicRandom(run) {
+  const originalMath = global.Math
+  global.Math = mockMath
 
-tap.test('generate badge with { label, status, color }', t => {
-  const svg = badgen({ label: 'npm', status: 'v1.0.0', color: 'ADF' })
-  t.ok(typeof svg === 'string', 'successfully generated')
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
+  try {
+    return run()
+  } finally {
+    global.Math = originalMath
+  }
+}
 
-tap.test('generate badge with { label, status, style }', t => {
-  const svg = badgen({ label: 'npm', status: 'v1.0.0', style: 'flat' })
-  t.ok(typeof svg === 'string', 'successfully generated')
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('generate badge with { label, status, color, style }', t => {
-  const svg = badgen({ label: 'npm', status: 'v1.0.0', color: 'ADF', style: 'flat' })
-  t.ok(typeof svg === 'string', 'successfully generated')
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('generate badge with { label, status, icon }', t => {
-  const svg = badgen({ label: 'docker', status: 'icon', icon: icons.chrome })
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('generate badge with { status, icon }', t => {
-  const svg = badgen({ label: '', status: 'icon', icon: icons.chrome })
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('generate badge with { status, icon, iconWidth }', t => {
-  const svg = badgen({ label: '', status: 'icon', icon: icons.lgtm, iconWidth: 19 })
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('generate badge with { label, status, icon, style }', t => {
-  const svg = badgen({ label: 'docker', status: 'icon', style: 'flat', icon: icons.lgtm })
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('ensure badgen() correctly escapes string inputs', t => {
-  const svg = badgen({
-    label: '<escape me>',
-    status: '<escape me>',
-    color: '<escape me>',
-    icon: '<escape me>',
-    labelColor: '<escape me>',
+test('generate badge with { label, status }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: 'npm', status: 'v1.0.0' })
+    assert.equal(typeof svg, 'string')
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { label, status }'), svg)
   })
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
 })
 
-tap.test('generate bare badge with { status }', t => {
-  const svg = badgen({ status: 'v1.0.0' })
-  t.ok(typeof svg === 'string', 'successfully generated')
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('generate bare badge with { status, color }', t => {
-  const svg = badgen({ status: 'v1.0.0', color: 'ADF' })
-  t.ok(typeof svg === 'string', 'successfully generated')
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('generate bare badge with { status, style }', t => {
-  const svg = badgen({ status: 'v1.0.0', style: 'flat' })
-  t.ok(typeof svg === 'string', 'successfully generated')
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
-})
-
-tap.test('ensure bare() correctly escapes string inputs', t => {
-  const svg = badgen({
-    status: '<escape me>',
-    color: '<escape me>',
+test('generate badge with { label, status, color }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: 'npm', status: 'v1.0.0', color: 'ADF' })
+    assert.equal(typeof svg, 'string')
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { label, status, color }'), svg)
   })
-  t.matchSnapshot(svg, 'snapshot')
-  t.end()
 })
 
-tap.test('type checking', t => {
+test('generate badge with { label, status, style }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: 'npm', status: 'v1.0.0', style: 'flat' })
+    assert.equal(typeof svg, 'string')
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { label, status, style }'), svg)
+  })
+})
+
+test('generate badge with { label, status, color, style }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: 'npm', status: 'v1.0.0', color: 'ADF', style: 'flat' })
+    assert.equal(typeof svg, 'string')
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { label, status, color, style }'), svg)
+  })
+})
+
+test('generate badge with { label, status, icon }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: 'docker', status: 'icon', icon: icons.chrome })
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { label, status, icon }'), svg)
+  })
+})
+
+test('generate badge with { status, icon }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: '', status: 'icon', icon: icons.chrome })
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { status, icon }'), svg)
+  })
+})
+
+test('generate badge with { status, icon, iconWidth }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: '', status: 'icon', icon: icons.lgtm, iconWidth: 19 })
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { status, icon, iconWidth }'), svg)
+  })
+})
+
+test('generate badge with { label, status, icon, style }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ label: 'docker', status: 'icon', style: 'flat', icon: icons.lgtm })
+    matchSnapshot(snapshotFile, snapshotKey('generate badge with { label, status, icon, style }'), svg)
+  })
+})
+
+test('ensure badgen() correctly escapes string inputs', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({
+      label: '<escape me>',
+      status: '<escape me>',
+      color: '<escape me>',
+      icon: '<escape me>',
+      labelColor: '<escape me>',
+    })
+    matchSnapshot(snapshotFile, snapshotKey('ensure badgen() correctly escapes string inputs'), svg)
+  })
+})
+
+test('generate bare badge with { status }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ status: 'v1.0.0' })
+    assert.equal(typeof svg, 'string')
+    matchSnapshot(snapshotFile, snapshotKey('generate bare badge with { status }'), svg)
+  })
+})
+
+test('generate bare badge with { status, color }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ status: 'v1.0.0', color: 'ADF' })
+    assert.equal(typeof svg, 'string')
+    matchSnapshot(snapshotFile, snapshotKey('generate bare badge with { status, color }'), svg)
+  })
+})
+
+test('generate bare badge with { status, style }', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({ status: 'v1.0.0', style: 'flat' })
+    assert.equal(typeof svg, 'string')
+    matchSnapshot(snapshotFile, snapshotKey('generate bare badge with { status, style }'), svg)
+  })
+})
+
+test('ensure bare() correctly escapes string inputs', () => {
+  withDeterministicRandom(() => {
+    const svg = badgen({
+      status: '<escape me>',
+      color: '<escape me>',
+    })
+    matchSnapshot(snapshotFile, snapshotKey('ensure bare() correctly escapes string inputs'), svg)
+  })
+})
+
+test('type checking', () => {
   // @ts-ignore
-  t.throws(() => badgen({}), TypeError, 'throw if status is non-string')
-  t.end()
+  assert.throws(() => badgen({}), TypeError)
 })
