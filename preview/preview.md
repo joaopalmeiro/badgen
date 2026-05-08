@@ -22,7 +22,8 @@
 |![](/style/standard/f2a) | [/style/standard/f2a](/style/standard/f2a) |
 |![](/license/Apache-2.0/blue) | [/license/Apache-2.0/blue](/license/Apache-2.0/blue) |
 |![](/Language/Swift%203.0.1/orange) | [/Language/Swift%203.0.1/orange](/Language/Swift%203.0.1/orange) |
-|![](/labelColor/badge/yellow?icon=chrome&labelColor=red)
+|![](/labelColor/badge/yellow?icon=chrome&labelColor=red) | [/labelColor/badge/yellow?icon=chrome&labelColor=red](/labelColor/badge/yellow?icon=chrome&labelColor=red) |
+|![](/VS%20Code%20Marketplace/Vue.volar?color=eee) | [/VS%20Code%20Marketplace/Vue.volar?color=eee](/VS%20Code%20Marketplace/Vue.volar?color=eee) |
 
 ## Flat Style
 
@@ -33,6 +34,8 @@
 |![](/style/standard/f2a?style=flat) | [/style/standard/f2a?style=flat](/style/standard/f2a?style=flat) |
 |![](/license/Apache-2.0/blue?style=flat) | [/license/Apache-2.0/blue?style=flat](/license/Apache-2.0/blue?style=flat) |
 |![](/Language/Swift%203.0.1/orange?style=flat) | [/Language/Swift%203.0.1/orange?style=flat](/Language/Swift%203.0.1/orange?style=flat) |
+|![](/labelColor/badge/yellow?style=flat&icon=chrome&labelColor=red) | [/labelColor/badge/yellow?style=flat&icon=chrome&labelColor=red](/labelColor/badge/yellow?style=flat&icon=chrome&labelColor=red) |
+|![](/VS%20Code%20Marketplace/Vue.volar?style=flat&color=eee) | [/VS%20Code%20Marketplace/Vue.volar?style=flat&color=eee](/VS%20Code%20Marketplace/Vue.volar?style=flat&color=eee) |
 
 ## Astral Plain Charset (emoji)
 
